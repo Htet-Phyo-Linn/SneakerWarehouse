@@ -1,0 +1,62 @@
+CREATE TABLE brand (
+    brand_id INT AUTO_INCREMENT PRIMARY KEY,  -- Unique identifier for each brand
+    name VARCHAR(100) NOT NULL,               -- Name of the brand
+    description TEXT                          -- Description of the brand (optional, can be NULL)
+);
+
+CREATE TABLE size_chart (
+    size_id INT AUTO_INCREMENT PRIMARY KEY,   -- Unique identifier for each size
+    size_number VARCHAR(30) NOT NULL,         -- Size number (e.g., "8", "9.5", "10")
+    foot_size DECIMAL(5,2) NOT NULL           -- Foot size in inches or centimeters (specify unit in application)
+);
+
+CREATE TABLE color (
+    color_id INT AUTO_INCREMENT PRIMARY KEY,  -- Unique identifier for each color
+    color_name VARCHAR(50) NOT NULL           -- Name of the color (e.g., "Red", "Blue")
+);
+
+
+INSERT INTO brand (name, description) VALUES
+('Nike', 'A global leader in athletic footwear, apparel, and equipment.'),
+('Adidas', 'A multinational corporation that designs and manufactures shoes, clothing, and accessories.'),
+('Puma', 'A major German multinational company that designs and manufactures athletic and casual footwear, apparel, and accessories.'),
+('Reebok', 'An American-inspired global brand with a deep heritage in fitness.'),
+('Under Armour', 'An American company that manufactures footwear, sports, and casual apparel.');
+
+
+INSERT INTO size_chart (size_number, foot_size) VALUES
+('8', 25.4),   -- Size 8 with foot size 25.4 cm (example unit)
+('8.5', 25.7), -- Size 8.5 with foot size 25.7 cm
+('9', 26.0),   -- Size 9 with foot size 26.0 cm
+('9.5', 26.7), -- Size 9.5 with foot size 26.7 cm
+('10', 27.0);  -- Size 10 with foot size 27.0 cm
+
+
+INSERT INTO size_chart (size_number, foot_size) VALUES
+('6 US Men', 24.0),
+('6.5 US Men', 24.5),
+('7 US Men', 25.0),
+('7.5 US Men', 25.5),
+('8 US Men', 26.0),
+('8.5 US Men', 26.5),
+('9 US Men', 27.0),
+('9.5 US Men', 27.5),
+('10 US Men', 28.0),
+('10.5 US Men', 28.5),
+('13 US Men', 31.0),
+('14 US Men', 32.0),
+('15 US Men', 33.0);
+
+
+INSERT INTO color (color_name) VALUES
+('Red'),
+('Blue'),
+('Black'),
+('White'),
+('Green'),
+('Yellow'),
+('Gray'),
+('Orange'),
+('Purple'),
+('Pink');
+

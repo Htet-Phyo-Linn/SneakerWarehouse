@@ -1,0 +1,56 @@
+CREATE TABLE staff (
+    staff_id INT AUTO_INCREMENT PRIMARY KEY,  -- Unique identifier for each staff member
+    name VARCHAR(100) NOT NULL,               -- Name of the staff member
+    password_hash VARCHAR(255) NOT NULL,      -- Hashed password for security
+    email VARCHAR(100) UNIQUE NOT NULL,       -- Staff member's email address
+    role VARCHAR(50) NOT NULL,                -- Role of the staff member (e.g., admin, manager, employee)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp for when the record was created
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  -- Timestamp for last update
+);
+
+
+DELIMITER $$
+
+CREATE TRIGGER hash_password_before_insert
+BEFORE INSERT ON staff
+FOR EACH ROW
+BEGIN
+    SET NEW.password_hash = SHA2(NEW.password_hash, 256);
+END $$
+
+DELIMITER ;
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER hash_password_before_update
+BEFORE UPDATE ON staff
+FOR EACH ROW
+BEGIN
+    SET NEW.password_hash = SHA2(NEW.password_hash, 256);
+END $$
+
+DELIMITER ;
+
+
+
+# staff simple data
+
+INSERT INTO staff (name, password_hash, email, role) VALUES
+('John Doe', 'password123', 'john.doe@example.com', 'admin'),
+('Jane Smith', 'qwerty456', 'jane.smith@example.com', 'manager'),
+('Alice Johnson', 'alice789', 'alice.johnson@example.com', 'employee'),
+('Bob Brown', 'securepass', 'bob.brown@example.com', 'employee'),
+('Charlie Davis', 'letmein123', 'charlie.davis@example.com', 'manager'),
+('Diana Miller', 'mypassword', 'diana.miller@example.com', 'admin'),
+('Ethan Wilson', 'pass1234', 'ethan.wilson@example.com', 'employee'),
+('Fiona Clark', 'password!', 'fiona.clark@example.com', 'employee'),
+('George Lee', 'admin2024', 'george.lee@example.com', 'admin'),
+('Hannah Scott', 'welcome1', 'hannah.scott@example.com', 'manager');
+
+
+UPDATE staff
+SET password_hash = "employee ehlwe"
+WHERE staff_id = 3;
+

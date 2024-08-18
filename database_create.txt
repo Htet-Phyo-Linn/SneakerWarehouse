@@ -1,0 +1,10 @@
+create database SneakerWarehouse;
+
+use SneakerWarehouse;
+
+show tables;
+
+select * from user;
+select * from color;
+select * from brand;
+select * from size_chart;

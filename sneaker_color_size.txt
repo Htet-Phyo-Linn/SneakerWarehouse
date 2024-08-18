@@ -1,0 +1,90 @@
+CREATE TABLE sneaker_color_size (
+    sneaker_id INT,                             -- Foreign key referencing Sneaker table
+    color_id INT,                               -- Foreign key referencing Color table
+    size_id INT,                                -- Foreign key referencing Size_Chart table
+    quantity INT NOT NULL,                      -- Quantity of this specific sneaker, color, and size combination
+    PRIMARY KEY (sneaker_id, color_id, size_id),-- Composite primary key
+    FOREIGN KEY (sneaker_id) REFERENCES sneaker(sneaker_id),
+    FOREIGN KEY (color_id) REFERENCES color(color_id),
+    FOREIGN KEY (size_id) REFERENCES size_chart(size_id)
+);
+
+
+INSERT INTO sneaker_color_size (sneaker_id, color_id, size_id, quantity) VALUES
+(1, 1, 1, 50),  -- Nike Air Max 90, Red, Size 8, Quantity 50
+(1, 2, 2, 40),  -- Nike Air Max 90, Blue, Size 8.5, Quantity 40
+(2, 3, 3, 30),  -- Adidas UltraBoost 21, Black, Size 9, Quantity 30
+(2, 4, 4, 25),  -- Adidas UltraBoost 21, White, Size 9.5, Quantity 25
+(3, 5, 5, 20),  -- Puma Classic Suede, Green, Size 10, Quantity 20
+(3, 6, 6, 35),  -- Puma Classic Suede, Yellow, Size 10.5, Quantity 35
+(4, 1, 7, 45),  -- Reebok Nano X1, Red, Size 11, Quantity 45
+(4, 3, 8, 50),  -- Reebok Nano X1, Black, Size 11.5, Quantity 50
+(5, 2, 9, 15),  -- Under Armour Curry 8, Blue, Size 12, Quantity 15
+(5, 4, 10, 10); -- Under Armour Curry 8, White, Size 12.5, Quantity 10
+
+
+
+#select query
+
+SELECT 
+    scs.sneaker_id,
+    s.name AS sneaker_name,
+    s.model_name,
+    c.color_name,
+    sz.size_number,
+    scs.quantity
+FROM 
+    sneaker_color_size scs
+JOIN 
+    sneaker s ON scs.sneaker_id = s.sneaker_id
+JOIN 
+    color c ON scs.color_id = c.color_id
+JOIN 
+    size_chart sz ON scs.size_id = sz.size_id;
+
+
+#another way
+
+SELECT 
+    scs.sneaker_id,
+    s.name AS sneaker_name,
+    s.model_name,
+    c.color_name,
+    sz.size_number AS size,
+    scs.quantity
+FROM 
+    sneaker_color_size AS scs
+INNER JOIN 
+    sneaker AS s ON scs.sneaker_id = s.sneaker_id
+INNER JOIN 
+    color AS c ON scs.color_id = c.color_id
+INNER JOIN 
+    size_chart AS sz ON scs.size_id = sz.size_id
+ORDER BY 
+    s.name, c.color_name, sz.size_number;
+
+
+
+#with brand name
+
+SELECT 
+    scs.sneaker_id,
+    s.name AS sneaker_name,
+    s.model_name,
+    b.name AS brand_name,
+    c.color_name,
+    sz.size_number AS size,
+    scs.quantity
+FROM 
+    sneaker_color_size AS scs
+INNER JOIN 
+    sneaker AS s ON scs.sneaker_id = s.sneaker_id
+INNER JOIN 
+    brand AS b ON s.brand_id = b.brand_id
+INNER JOIN 
+    color AS c ON scs.color_id = c.color_id
+INNER JOIN 
+    size_chart AS sz ON scs.size_id = sz.size_id
+ORDER BY 
+    b.name, s.name, c.color_name, sz.size_number;
+
