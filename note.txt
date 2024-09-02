@@ -1,0 +1,51 @@
+
+DELIMITER $$
+
+CREATE PROCEDURE update_sneaker_quantity(
+    IN p_sneaker_id INT,
+    IN p_color_id INT,
+    IN p_size_id INT,
+    IN p_quantity_change INT,
+    IN p_staff_id INT
+)
+BEGIN
+    DECLARE v_old_quantity INT;
+    DECLARE v_new_quantity INT;
+
+    -- Get the current quantity before update
+    SELECT quantity INTO v_old_quantity
+    FROM sneaker_color_size
+    WHERE sneaker_id = p_sneaker_id
+      AND color_id = p_color_id
+      AND size_id = p_size_id;
+
+    -- Calculate the new quantity
+    SET v_new_quantity = v_old_quantity + p_quantity_change;
+
+    -- Update the quantity in the sneaker_color_size table
+    UPDATE sneaker_color_size
+    SET quantity = v_new_quantity
+    WHERE sneaker_id = p_sneaker_id
+      AND color_id = p_color_id
+      AND size_id = p_size_id;
+
+    -- Log the change in the sneaker_color_size_log table
+    INSERT INTO sneaker_color_size_log (
+        sneaker_id, 
+        color_id, 
+        size_id, 
+        old_quantity, 
+        new_quantity, 
+        staff_id
+    ) VALUES (
+        p_sneaker_id, 
+        p_color_id, 
+        p_size_id, 
+        v_old_quantity, 
+        v_new_quantity, 
+        p_staff_id
+    );
+END$$
+
+DELIMITER ;
+

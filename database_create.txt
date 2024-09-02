@@ -4,7 +4,19 @@ use SneakerWarehouse;
 
 show tables;
 
-select * from user;
+select * from staff;
 select * from color;
 select * from brand;
 select * from size_chart;
+select * from sneaker;
+select * from sneaker_color_size;
+select * from sneaker_color_size_log;
+
+desc staff;
+desc color;
+desc brand;
+desc size_chart;
+desc sneaker;
+desc sneaker_color_size;
+desc sneaker_color_size_log;
+

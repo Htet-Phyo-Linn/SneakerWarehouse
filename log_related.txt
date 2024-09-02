@@ -1,0 +1,16 @@
+CREATE TABLE sneaker_color_size_log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,  -- Unique log entry identifier
+    sneaker_id INT,                         -- Foreign key referencing Sneaker table
+    color_id INT,                           -- Foreign key referencing Color table
+    size_id INT,                            -- Foreign key referencing Size_Chart table
+    old_quantity INT NOT NULL,              -- The quantity before the update
+    new_quantity INT NOT NULL,              -- The quantity after the update
+    change_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- The time when the change occurred
+    staff_id INT,                            -- The ID of the user who made the change
+    FOREIGN KEY (sneaker_id) REFERENCES sneaker(sneaker_id),
+    FOREIGN KEY (color_id) REFERENCES color(color_id),
+    FOREIGN KEY (size_id) REFERENCES size_chart(size_id),
+    FOREIGN KEY (staff_id) REFERENCES staff(staff_id)       -- Assumes a staff table exists
+);
+
+

@@ -1,0 +1,179 @@
+create database SneakerWarehouse;
+
+use SneakerWarehouse;
+
+
+CREATE TABLE staff (
+    staff_id INT AUTO_INCREMENT PRIMARY KEY,  -- Unique identifier for each staff member
+    name VARCHAR(100) NOT NULL,               -- Name of the staff member
+    password_hash VARCHAR(255) NOT NULL,      -- Hashed password for security
+    email VARCHAR(100) UNIQUE NOT NULL,       -- Staff member's email address
+    role VARCHAR(50) NOT NULL,                -- Role of the staff member (e.g., admin, manager, employee)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp for when the record was created
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  -- Timestamp for last update
+);
+
+
+DELIMITER $$
+
+CREATE TRIGGER hash_password_before_insert
+BEFORE INSERT ON staff
+FOR EACH ROW
+BEGIN
+    SET NEW.password_hash = SHA2(NEW.password_hash, 256);
+END $$
+
+DELIMITER ;
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER hash_password_before_update
+BEFORE UPDATE ON staff
+FOR EACH ROW
+BEGIN
+    SET NEW.password_hash = SHA2(NEW.password_hash, 256);
+END $$
+
+DELIMITER ;
+
+
+
+# staff simple data
+
+INSERT INTO staff (name, password_hash, email, role) VALUES
+('John Doe', 'password123', 'john.doe@example.com', 'admin'),
+('Jane Smith', 'qwerty456', 'jane.smith@example.com', 'manager'),
+('Alice Johnson', 'alice789', 'alice.johnson@example.com', 'employee'),
+('Bob Brown', 'securepass', 'bob.brown@example.com', 'employee'),
+('Charlie Davis', 'letmein123', 'charlie.davis@example.com', 'manager'),
+('Diana Miller', 'mypassword', 'diana.miller@example.com', 'admin'),
+('Ethan Wilson', 'pass1234', 'ethan.wilson@example.com', 'employee'),
+('Fiona Clark', 'password!', 'fiona.clark@example.com', 'employee'),
+('George Lee', 'admin2024', 'george.lee@example.com', 'admin'),
+('Hannah Scott', 'welcome1', 'hannah.scott@example.com', 'manager');
+
+
+UPDATE staff
+SET password_hash = "employee ehlwe"
+WHERE staff_id = 3;
+
+
+
+
+CREATE TABLE brand (
+    brand_id INT AUTO_INCREMENT PRIMARY KEY,  -- Unique identifier for each brand
+    name VARCHAR(100) NOT NULL,               -- Name of the brand
+    description TEXT                          -- Description of the brand (optional, can be NULL)
+);
+
+CREATE TABLE size_chart (
+    size_id INT AUTO_INCREMENT PRIMARY KEY,   -- Unique identifier for each size
+    size_number VARCHAR(30) NOT NULL,         -- Size number (e.g., "8", "9.5", "10")
+    foot_size DECIMAL(5,2) NOT NULL           -- Foot size in inches or centimeters (specify unit in application)
+);
+
+CREATE TABLE color (
+    color_id INT AUTO_INCREMENT PRIMARY KEY,  -- Unique identifier for each color
+    color_name VARCHAR(50) NOT NULL           -- Name of the color (e.g., "Red", "Blue")
+);
+
+
+INSERT INTO brand (name, description) VALUES
+('Nike', 'A global leader in athletic footwear, apparel, and equipment.'),
+('Adidas', 'A multinational corporation that designs and manufactures shoes, clothing, and accessories.'),
+('Puma', 'A major German multinational company that designs and manufactures athletic and casual footwear, apparel, and accessories.'),
+('Reebok', 'An American-inspired global brand with a deep heritage in fitness.'),
+('Under Armour', 'An American company that manufactures footwear, sports, and casual apparel.');
+
+
+INSERT INTO size_chart (size_number, foot_size) VALUES
+('8', 25.4),   -- Size 8 with foot size 25.4 cm (example unit)
+('8.5', 25.7), -- Size 8.5 with foot size 25.7 cm
+('9', 26.0),   -- Size 9 with foot size 26.0 cm
+('9.5', 26.7), -- Size 9.5 with foot size 26.7 cm
+('10', 27.0);  -- Size 10 with foot size 27.0 cm
+
+
+INSERT INTO size_chart (size_number, foot_size) VALUES
+('6 US Men', 24.0),
+('6.5 US Men', 24.5),
+('7 US Men', 25.0),
+('7.5 US Men', 25.5),
+('8 US Men', 26.0),
+('8.5 US Men', 26.5),
+('9 US Men', 27.0),
+('9.5 US Men', 27.5),
+('10 US Men', 28.0),
+('10.5 US Men', 28.5),
+('13 US Men', 31.0),
+('14 US Men', 32.0),
+('15 US Men', 33.0);
+
+
+INSERT INTO color (color_name) VALUES
+('Red'),
+('Blue'),
+('Black'),
+('White'),
+('Green'),
+('Yellow'),
+('Gray'),
+('Orange'),
+('Purple'),
+('Pink');
+
+
+CREATE TABLE sneaker (
+    sneaker_id INT AUTO_INCREMENT PRIMARY KEY,  -- Unique identifier for each sneaker
+    name VARCHAR(100) NOT NULL,                 -- Name of the sneaker
+    brand_id INT,                               -- Foreign key referencing Brand table
+    model_name VARCHAR(100) NOT NULL,           -- Model name of the sneaker
+    price DECIMAL(10, 2) NOT NULL,              -- Price of the sneaker
+    size_id INT,                                -- Foreign key referencing Size_Chart table,
+    FOREIGN KEY (brand_id) REFERENCES brand(brand_id),  -- Foreign key constraint
+    FOREIGN KEY (size_id) REFERENCES size_chart(size_id)  -- Foreign key constraint
+);
+
+
+INSERT INTO sneaker (name, brand_id, model_name, price, size_id) VALUES
+('Air Max 90', 1, 'Nike Air Max 90', 120.00, 1),
+('UltraBoost 21', 2, 'Adidas UltraBoost 21', 180.00, 2),
+('Classic Suede', 3, 'Puma Classic Suede', 85.00, 3),
+('Nano X1', 4, 'Reebok Nano X1', 130.00, 4),
+('Curry 8', 5, 'Under Armour Curry 8', 160.00, 5),
+('Air Force 1', 1, 'Nike Air Force 1', 90.00, 6),
+('Superstar', 2, 'Adidas Superstar', 80.00, 7),
+('RS-X', 3, 'Puma RS-X', 110.00, 8),
+('Club C 85', 4, 'Reebok Club C 85', 75.00, 9),
+('HOVR Phantom', 5, 'Under Armour HOVR Phantom', 140.00, 10);
+
+
+
+
+CREATE TABLE sneaker_color_size (
+    sneaker_id INT,                             -- Foreign key referencing Sneaker table
+    color_id INT,                               -- Foreign key referencing Color table
+    size_id INT,                                -- Foreign key referencing Size_Chart table
+    quantity INT NOT NULL,                      -- Quantity of this specific sneaker, color, and size combination
+    PRIMARY KEY (sneaker_id, color_id, size_id),-- Composite primary key
+    FOREIGN KEY (sneaker_id) REFERENCES sneaker(sneaker_id),
+    FOREIGN KEY (color_id) REFERENCES color(color_id),
+    FOREIGN KEY (size_id) REFERENCES size_chart(size_id)
+);
+
+
+INSERT INTO sneaker_color_size (sneaker_id, color_id, size_id, quantity) VALUES
+(1, 1, 1, 50),  -- Nike Air Max 90, Red, Size 8, Quantity 50
+(1, 2, 2, 40),  -- Nike Air Max 90, Blue, Size 8.5, Quantity 40
+(2, 3, 3, 30),  -- Adidas UltraBoost 21, Black, Size 9, Quantity 30
+(2, 4, 4, 25),  -- Adidas UltraBoost 21, White, Size 9.5, Quantity 25
+(3, 5, 5, 20),  -- Puma Classic Suede, Green, Size 10, Quantity 20
+(3, 6, 6, 35),  -- Puma Classic Suede, Yellow, Size 10.5, Quantity 35
+(4, 1, 7, 45),  -- Reebok Nano X1, Red, Size 11, Quantity 45
+(4, 3, 8, 50),  -- Reebok Nano X1, Black, Size 11.5, Quantity 50
+(5, 2, 9, 15),  -- Under Armour Curry 8, Blue, Size 12, Quantity 15
+(5, 4, 10, 10); -- Under Armour Curry 8, White, Size 12.5, Quantity 10
+
+
