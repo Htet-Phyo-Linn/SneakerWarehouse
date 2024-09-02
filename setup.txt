@@ -60,8 +60,6 @@ SET password_hash = "employee ehlwe"
 WHERE staff_id = 3;
 
 
-
-
 CREATE TABLE brand (
     brand_id INT AUTO_INCREMENT PRIMARY KEY,  -- Unique identifier for each brand
     name VARCHAR(100) NOT NULL,               -- Name of the brand
@@ -132,22 +130,22 @@ CREATE TABLE sneaker (
     model_name VARCHAR(100) NOT NULL,           -- Model name of the sneaker
     price DECIMAL(10, 2) NOT NULL,              -- Price of the sneaker
     size_id INT,                                -- Foreign key referencing Size_Chart table,
-    FOREIGN KEY (brand_id) REFERENCES brand(brand_id),  -- Foreign key constraint
-    FOREIGN KEY (size_id) REFERENCES size_chart(size_id)  -- Foreign key constraint
+    FOREIGN KEY (brand_id) REFERENCES brand(brand_id)  -- Foreign key constraint
 );
 
 
-INSERT INTO sneaker (name, brand_id, model_name, price, size_id) VALUES
-('Air Max 90', 1, 'Nike Air Max 90', 120.00, 1),
-('UltraBoost 21', 2, 'Adidas UltraBoost 21', 180.00, 2),
-('Classic Suede', 3, 'Puma Classic Suede', 85.00, 3),
-('Nano X1', 4, 'Reebok Nano X1', 130.00, 4),
-('Curry 8', 5, 'Under Armour Curry 8', 160.00, 5),
-('Air Force 1', 1, 'Nike Air Force 1', 90.00, 6),
-('Superstar', 2, 'Adidas Superstar', 80.00, 7),
-('RS-X', 3, 'Puma RS-X', 110.00, 8),
-('Club C 85', 4, 'Reebok Club C 85', 75.00, 9),
-('HOVR Phantom', 5, 'Under Armour HOVR Phantom', 140.00, 10);
+INSERT INTO sneaker (name, brand_id, model_name, price) VALUES
+('Air Max 90', 1, 'Nike Air Max 90', 120.00),
+('UltraBoost 21', 2, 'Adidas UltraBoost 21', 180.00),
+('Classic Suede', 3, 'Puma Classic Suede', 85.00),
+('Nano X1', 4, 'Reebok Nano X1', 130.00),
+('Curry 8', 5, 'Under Armour Curry 8', 160.00),
+('Air Force 1', 1, 'Nike Air Force 1', 90.00),
+('Superstar', 2, 'Adidas Superstar', 80.00),
+('RS-X', 3, 'Puma RS-X', 110.00),
+('Club C 85', 4, 'Reebok Club C 85', 75.00),
+('HOVR Phantom', 5, 'Under Armour HOVR Phantom', 140.00);
+
 
 
 
@@ -177,3 +175,185 @@ INSERT INTO sneaker_color_size (sneaker_id, color_id, size_id, quantity) VALUES
 (5, 4, 10, 10); -- Under Armour Curry 8, White, Size 12.5, Quantity 10
 
 
+CREATE TABLE sneaker_color_size_log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,  -- Unique log entry identifier
+    sneaker_id INT,                         -- Foreign key referencing Sneaker table
+    color_id INT,                           -- Foreign key referencing Color table
+    size_id INT,                            -- Foreign key referencing Size_Chart table
+    old_quantity INT NOT NULL,              -- The quantity before the update
+    new_quantity INT NOT NULL,              -- The quantity after the update
+    change_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- The time when the change occurred
+    staff_id INT,                            -- The ID of the user who made the change
+    FOREIGN KEY (sneaker_id) REFERENCES sneaker(sneaker_id),
+    FOREIGN KEY (color_id) REFERENCES color(color_id),
+    FOREIGN KEY (size_id) REFERENCES size_chart(size_id),
+    FOREIGN KEY (staff_id) REFERENCES staff(staff_id)       -- Assumes a staff table exists
+);
+
+
+
+CREATE TABLE sneaker_color_size_log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,  -- Unique log entry identifier
+    sneaker_id INT,                         -- Foreign key referencing Sneaker table
+    color_id INT,                           -- Foreign key referencing Color table
+    size_id INT,                            -- Foreign key referencing Size_Chart table
+    old_quantity INT NOT NULL,              -- The quantity before the update
+    new_quantity INT NOT NULL,              -- The quantity after the update
+    change_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- The time when the change occurred
+    staff_id INT,                            -- The ID of the user who made the change
+    FOREIGN KEY (sneaker_id) REFERENCES sneaker(sneaker_id),
+    FOREIGN KEY (color_id) REFERENCES color(color_id),
+    FOREIGN KEY (size_id) REFERENCES size_chart(size_id),
+    FOREIGN KEY (staff_id) REFERENCES staff(staff_id)       -- Assumes a staff table exists
+);
+
+
+DELIMITER $$
+
+CREATE FUNCTION add_sneaker_quantity(
+    p_sneaker_id INT,
+    p_color_id INT,
+    p_size_id INT,
+    p_quantity_to_add INT
+) RETURNS INT
+BEGIN
+    DECLARE v_old_quantity INT;
+    DECLARE v_new_quantity INT;
+
+    -- Get the current quantity
+    SELECT quantity INTO v_old_quantity
+    FROM sneaker_color_size
+    WHERE sneaker_id = p_sneaker_id
+      AND color_id = p_color_id
+      AND size_id = p_size_id;
+
+    -- Calculate the new quantity
+    SET v_new_quantity = v_old_quantity + p_quantity_to_add;
+
+    -- Return the new quantity
+    RETURN v_new_quantity;
+END$$
+
+DELIMITER ;
+
+
+
+
+DELIMITER $$
+
+CREATE FUNCTION subtract_sneaker_quantity(
+    p_sneaker_id INT,
+    p_color_id INT,
+    p_size_id INT,
+    p_quantity_to_subtract INT
+) RETURNS INT
+BEGIN
+    DECLARE v_old_quantity INT;
+    DECLARE v_new_quantity INT;
+
+    -- Get the current quantity
+    SELECT quantity INTO v_old_quantity
+    FROM sneaker_color_size
+    WHERE sneaker_id = p_sneaker_id
+      AND color_id = p_color_id
+      AND size_id = p_size_id;
+
+    -- Calculate the new quantity
+    SET v_new_quantity = v_old_quantity - p_quantity_to_subtract;
+
+    -- Return the new quantity
+    RETURN v_new_quantity;
+END$$
+
+DELIMITER ;
+
+
+
+-- Get the new quantity after addition
+SELECT add_sneaker_quantity(1, 1, 1, 5) AS new_quantity;
+
+-- Get the new quantity after subtraction
+SELECT subtract_sneaker_quantity(1, 1, 1, 3) AS new_quantity;
+
+
+UPDATE sneaker_color_size
+SET quantity = add_sneaker_quantity(1, 1, 1, 5)
+WHERE sneaker_id = 1 AND color_id = 1 AND size_id = 1;
+
+
+UPDATE sneaker_color_size
+SET quantity = subtract_sneaker_quantity(1, 1, 1, 3)
+WHERE sneaker_id = 1 AND color_id = 1 AND size_id = 1;
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE update_sneaker_quantity_with_log(
+    IN p_sneaker_id INT,
+    IN p_color_id INT,
+    IN p_size_id INT,
+    IN p_quantity_change INT,
+    IN p_staff_id INT,
+    IN p_operation_type VARCHAR(10)  -- 'ADD' or 'SUB'
+)
+BEGIN
+    DECLARE v_old_quantity INT;
+    DECLARE v_new_quantity INT;
+
+    -- Get the old quantity before the update
+    SELECT quantity INTO v_old_quantity 
+    FROM sneaker_color_size 
+    WHERE sneaker_id = p_sneaker_id 
+      AND color_id = p_color_id 
+      AND size_id = p_size_id;
+
+    -- Determine the new quantity based on the operation type using functions
+    IF p_operation_type = 'ADD' THEN
+        SET v_new_quantity = add_sneaker_quantity(p_sneaker_id, p_color_id, p_size_id, p_quantity_change);
+    ELSEIF p_operation_type = 'SUB' THEN
+        SET v_new_quantity = subtract_sneaker_quantity(p_sneaker_id, p_color_id, p_size_id, p_quantity_change);
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid operation type. Use "ADD" or "SUB".';
+    END IF;
+
+    -- Check if the new quantity is valid
+    IF v_new_quantity < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Quantity cannot be less than zero.';
+    ELSE
+        -- Update the quantity in the sneaker_color_size table
+        UPDATE sneaker_color_size
+        SET quantity = v_new_quantity
+        WHERE sneaker_id = p_sneaker_id
+          AND color_id = p_color_id
+          AND size_id = p_size_id;
+
+        -- Log the change in the sneaker_color_size_log table
+        INSERT INTO sneaker_color_size_log (
+            sneaker_id, 
+            color_id, 
+            size_id, 
+            old_quantity, 
+            new_quantity, 
+            change_timestamp, 
+            staff_id
+        ) VALUES (
+            p_sneaker_id, 
+            p_color_id, 
+            p_size_id, 
+            v_old_quantity, 
+            v_new_quantity, 
+            CURRENT_TIMESTAMP, 
+            p_staff_id
+        );
+    END IF;
+END$$
+
+DELIMITER ;
+
+
+
+
+CALL update_sneaker_quantity_with_log(1, 1, 1, 10, 1, 'ADD');
+
+CALL update_sneaker_quantity_with_log(1, 1, 1, 5, 1, 'SUB');

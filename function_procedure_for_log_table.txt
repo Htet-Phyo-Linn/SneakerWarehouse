@@ -88,7 +88,15 @@ CREATE PROCEDURE update_sneaker_quantity_with_log(
     IN p_operation_type VARCHAR(10)  -- 'ADD' or 'SUB'
 )
 BEGIN
+    DECLARE v_old_quantity INT;
     DECLARE v_new_quantity INT;
+
+    -- Get the old quantity before the update
+    SELECT quantity INTO v_old_quantity 
+    FROM sneaker_color_size 
+    WHERE sneaker_id = p_sneaker_id 
+      AND color_id = p_color_id 
+      AND size_id = p_size_id;
 
     -- Determine the new quantity based on the operation type using functions
     IF p_operation_type = 'ADD' THEN
@@ -117,19 +125,23 @@ BEGIN
             size_id, 
             old_quantity, 
             new_quantity, 
+            change_timestamp, 
             staff_id
         ) VALUES (
             p_sneaker_id, 
             p_color_id, 
             p_size_id, 
-            (SELECT quantity FROM sneaker_color_size WHERE sneaker_id = p_sneaker_id AND color_id = p_color_id AND size_id = p_size_id), 
+            v_old_quantity, 
             v_new_quantity, 
+            CURRENT_TIMESTAMP, 
             p_staff_id
         );
     END IF;
 END$$
 
 DELIMITER ;
+
+
 
 
 CALL update_sneaker_quantity_with_log(1, 1, 1, 10, 1, 'ADD');
